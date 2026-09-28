@@ -1,0 +1,7 @@
+# Godot's editor cache and per-machine import results: rebuilt by
+# `godot --headless --import` on a fresh checkout.
+.godot/
+*.import
+# Build output.
+export/
+/android/
