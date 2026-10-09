@@ -5,3 +5,5 @@
 # Build output.
 export/
 /android/
+# The benchmark's check screenshots (shots=1): for looking at, not for the repository.
+benchmark/results/shot-*.png

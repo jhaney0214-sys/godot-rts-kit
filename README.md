@@ -20,6 +20,15 @@ cut loose from it.
 | `RTSMinimap` | Ground shaded by the fog, dots per team, and the camera's view frame. Click or drag to move the camera; right-click to order, exactly like a right-click on the world. |
 | `RTSNavGrid` | A* on a grid, with routes pulled tight so a path round a wall is a few waypoints rather than a staircase. Bake it from your level's colliders or mark obstacles by hand. An unreachable goal ends at the nearest point that can be reached. |
 
+## How many units?
+
+[`benchmark/`](benchmark/) measures frame time against unit count, 100 to
+8,000, for four ways of moving units in Godot 4: NavigationAgent3D with and
+without avoidance, one path shared by a squad, and a flow field drawn with a
+MultiMesh. On the machine it was run on, agents with avoidance fit about 4,000
+units in a 60 fps frame, agents without it only just fit 8,000, and a shared
+path or a flow field moves 8,000 in about a third of the frame.
+
 ## Install
 
 Copy `addons/rts_kit` into your project. There is no plugin to enable: the
