@@ -40,6 +40,9 @@ func _ready() -> void:
 	hud.add_child(minimap)
 	var help := Label.new()
 	help.text = "Left drag: select   Right click: move   Shift: add / queue   Double-click: all of a kind\nCtrl+1-9: set group   1-9: recall (twice: jump)   H: stop   WASD / edges / middle drag: pan   Wheel: zoom"
+	if OS.has_feature("web"):
+		# A browser keeps Ctrl+1-9 for its own tabs, so groups cannot be set there.
+		help.text = "Left drag: select   Right click: move   Shift: add / queue   Double-click: all of a kind\nH: stop   WASD / edges / middle drag: pan   Wheel: zoom"
 	help.position = Vector2(214, 12)
 	help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	help.add_theme_color_override("font_outline_color", Color.BLACK)

@@ -4,7 +4,9 @@ The parts every real-time strategy game has to rebuild, as a drop-in addon:
 **box selection and orders, an RTS camera, fog of war, a minimap, and grid
 pathfinding.** Pure GDScript, no dependencies, MIT licensed.
 
-![The demo: selected units rounding a wall, with vision, remembered ground and the minimap](docs/screenshot.png)
+![The demo: a box dragged over eight units, which are then ordered round a wall as the fog lifts ahead of them](docs/demo.gif)
+
+**[Play the demo in your browser](https://jhaney0214-sys.github.io/godot-rts-kit/)** (desktop, with a mouse; about 40 MB to load).
 
 Extracted from **Drone Command**, a 3D RTS about drone warfare that I'm
 building in Godot. Each system here was built for that game first and then
@@ -35,7 +37,9 @@ Copy `addons/rts_kit` into your project. There is no plugin to enable: the
 nodes are ordinary scripts with `class_name`, so they show up in the Add Node
 dialog.
 
-To try the demo, open this repository as a project and press Play.
+To try the demo, open this repository as a project and press Play, or
+[play it in the browser](https://jhaney0214-sys.github.io/godot-rts-kit/). A browser keeps
+Ctrl+1–9 for its own tabs, so control groups cannot be set there.
 
 ## Your units stay yours
 
@@ -98,8 +102,10 @@ func _ready() -> void:
   layer 2.
 - **The fog needs depth.** It reads the depth buffer, so anything drawn
   without writing depth (most transparent materials) is fogged by what is
-  behind it. It has been checked in Forward+; the shader has a branch for
-  the Compatibility renderer that has not been checked yet.
+  behind it. It has been checked in Forward+ and, since 2026-10-10, in the
+  Compatibility renderer (desktop OpenGL and the browser demo), where the
+  shroud works but blends differently: unexplored ground is black where
+  Forward+ shows dark grey.
 - **Fog vision is a circle.** Nothing blocks line of sight yet: a unit sees
   over walls.
 - **The camera does not rotate.** Panning already respects the rig's yaw if
@@ -112,6 +118,9 @@ godot --headless --path . --import                    # once, on a fresh checkou
 godot --headless --path . -s tests/run_tests.gd       # 29 checks
 godot --headless --path . -s tools/arrival_check.gd   # units reach their orders
 godot --path . -s tools/screenshot.gd                 # windowed: redraws docs/screenshot.png
+godot --path . --fixed-fps 60 -s tools/record_gif.gd  # windowed: frames for the GIF, then
+python tools/make_gif.py                              # docs/demo.gif (needs Pillow)
+godot --headless --path . --export-release "Web" export/web/index.html   # the browser demo; needs the export templates
 ```
 
 Tested on Godot 4.7.1.
