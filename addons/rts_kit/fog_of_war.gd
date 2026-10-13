@@ -37,6 +37,14 @@ extends Node3D
 		if _mesh != null:
 			_mesh.visible = value
 
+## What blocks sight. Unset, vision is a plain circle and a unit sees over
+## walls. Set it to an [RTSNavGrid] and each unit's circle is cut by that grid's
+## solid cells: a unit sees the face of a wall and nothing behind it. The grid
+## your units path on works; one baked with a smaller [code]clearance[/code]
+## gives thinner shadows, since a path grid fattens walls by a unit's width.
+## Sight is worked out per grid cell, so shadow edges are as coarse as the cell.
+var sight_blockers: RTSNavGrid = null
+
 var visible_texture: ImageTexture
 var explored_texture: ImageTexture
 
@@ -145,14 +153,37 @@ func _stamp(at: Vector3, radius: float) -> void:
 	if lo_x > hi_x or lo_y > hi_y:
 		return
 	var r2: float = r * r
+	# With blockers, which cells of their grid this point can see. Looked up
+	# once per mask texel below; working it out per texel would be a ray each.
+	var seen := PackedByteArray()
+	var reach: int = 0
+	var home := Vector2i.ZERO
+	var cell: float = 1.0
+	var grid_x: float = 0.0
+	var grid_y: float = 0.0
+	if sight_blockers != null:
+		cell = sight_blockers.cell_size
+		grid_x = sight_blockers.world_rect.position.x
+		grid_y = sight_blockers.world_rect.position.y
+		home = Vector2i(floori((at.x - grid_x) / cell), floori((at.z - grid_y) / cell))
+		reach = ceili(radius / cell) + 1
+		seen = _sight(home, reach)
+	var span: int = 2 * reach + 1
 	for y in range(lo_y, hi_y + 1):
 		var dy: float = float(y) + 0.5 - cy
 		var row: int = y * _w
+		var gy: int = 0
+		if reach > 0:
+			gy = floori((world_rect.position.y + (float(y) + 0.5) / per_y - grid_y) / cell) - home.y + reach
 		for x in range(lo_x, hi_x + 1):
 			var dx: float = float(x) + 0.5 - cx
 			var d2: float = dx * dx + dy * dy
 			if d2 > r2:
 				continue
+			if reach > 0:
+				var gx: int = floori((world_rect.position.x + (float(x) + 0.5) / per_x - grid_x) / cell) - home.x + reach
+				if gx < 0 or gy < 0 or gx >= span or gy >= span or seen[gy * span + gx] == 0:
+					continue
 			# Feathered over the outer quarter of the radius, so linear filtering
 			# gives a soft rim instead of a staircase circle.
 			var v: int = int(clampf((1.0 - sqrt(d2) / maxf(r, 0.001)) * 4.0, 0.0, 1.0) * 255.0)
@@ -163,6 +194,32 @@ func _stamp(at: Vector3, radius: float) -> void:
 			# remembered ground is feathered like the edge of vision.
 			if v > _explored_bytes[i]:
 				_explored_bytes[i] = v
+
+## The cells of [member sight_blockers] that can be seen from [param home], as
+## a square of side [code]2 * reach + 1[/code] centred on it. A line is walked
+## to every cell on the square's edge; it lights each cell it crosses and stops
+## at the first solid one, which is lit too, so a wall shows its near face.
+func _sight(home: Vector2i, reach: int) -> PackedByteArray:
+	var span: int = 2 * reach + 1
+	var seen := PackedByteArray()
+	seen.resize(span * span)
+	seen.fill(0)
+	seen[reach * span + reach] = 1
+	var size: Vector2i = sight_blockers.size
+	for edge in range(-reach, reach + 1):
+		for target in [Vector2i(edge, -reach), Vector2i(edge, reach),
+				Vector2i(-reach, edge), Vector2i(reach, edge)]:
+			var steps: int = maxi(absi(target.x), absi(target.y))
+			for i in range(1, steps + 1):
+				var sx: int = roundi(float(target.x) * i / steps)
+				var sy: int = roundi(float(target.y) * i / steps)
+				seen[(sy + reach) * span + sx + reach] = 1
+				var c := home + Vector2i(sx, sy)
+				# Off the grid is open ground: the grid may be smaller than the fog.
+				var on_grid: bool = c.x >= 0 and c.y >= 0 and c.x < size.x and c.y < size.y
+				if on_grid and sight_blockers.is_cell_solid(c):
+					break
+	return seen
 
 func _index(at: Vector3) -> int:
 	var ix: int = floori((at.x - world_rect.position.x) / world_rect.size.x * _w)

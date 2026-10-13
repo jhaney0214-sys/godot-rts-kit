@@ -106,8 +106,14 @@ func _ready() -> void:
   Compatibility renderer (desktop OpenGL and the browser demo), where the
   shroud works but blends differently: unexplored ground is black where
   Forward+ shows dark grey.
-- **Fog vision is a circle.** Nothing blocks line of sight yet: a unit sees
-  over walls.
+- **Walls block sight when you say what a wall is.** By default fog vision is
+  a circle and a unit sees over everything. Set `fog.sight_blockers` to an
+  `RTSNavGrid` and each circle is cut by that grid's solid cells: a unit sees
+  the near face of a wall and nothing behind it, and an enemy behind one is
+  hidden. Bake a second grid for it with a small `clearance` (the demo uses
+  0.4), because the path grid fattens walls by a unit's width. Shadow edges
+  are as coarse as the grid's cells, and height is not considered: a unit on
+  a hill does not see over a wall below it.
 - **The camera does not rotate.** Panning already respects the rig's yaw if
   you rotate it yourself.
 
@@ -115,7 +121,7 @@ func _ready() -> void:
 
 ```bash
 godot --headless --path . --import                    # once, on a fresh checkout
-godot --headless --path . -s tests/run_tests.gd       # 29 checks
+godot --headless --path . -s tests/run_tests.gd       # 34 checks
 godot --headless --path . -s tools/arrival_check.gd   # units reach their orders
 godot --path . -s tools/screenshot.gd                 # windowed: redraws docs/screenshot.png
 godot --path . --fixed-fps 60 -s tools/record_gif.gd  # windowed: frames for the GIF, then

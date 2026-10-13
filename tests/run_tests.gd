@@ -8,7 +8,7 @@ extends SceneTree
 ## quietly ending a test early: GDScript aborts the function without failing
 ## anything, so the count is what notices.
 
-const EXPECTED_CHECKS := 29
+const EXPECTED_CHECKS := 34
 
 var _checks: int = 0
 var _failures: int = 0
@@ -158,6 +158,26 @@ func _test_fog() -> void:
 	check(fog.explored_at(Vector3(0, 0, 0)) and not fog.visible_at(Vector3(0, 0, 0)), "ground you left is remembered, not watched")
 	check(not fog.explored_at(Vector3(-40, 0, 40)), "ground nobody went near is unexplored")
 	check(not near_enemy.visible, "an enemy you stopped watching is hidden again")
+
+	# A wall across the scout's east side, three cells thick on a 2-unit grid.
+	scout.position = Vector3(0, 0, 0)
+	fog.reset()
+	fog.refresh()
+	check(fog.visible_at(Vector3(8, 0, 0)), "with nothing set to block sight, vision is the whole circle")
+	var walls := RTSNavGrid.new(Rect2(-50, -50, 100, 100), 2.0)
+	walls.block_rect(Rect2(4, -6, 2, 12))
+	fog.sight_blockers = walls
+	fog.reset()
+	fog.refresh()
+	check(not fog.visible_at(Vector3(8, 0, 0)) and not fog.explored_at(Vector3(8, 0, 0)),
+		"ground behind a wall is not seen")
+	check(fog.visible_at(Vector3(5, 0, 0)), "the wall itself is seen")
+	check(fog.visible_at(Vector3(-8, 0, 0)) and fog.visible_at(Vector3(0, 0, 8)),
+		"ground with a clear line to it still is")
+	near_enemy.position = Vector3(8, 0, 0)
+	fog.refresh()
+	check(not near_enemy.visible, "an enemy behind a wall is hidden")
+	fog.sight_blockers = null
 
 # ------------------------------------------------------------ selection
 

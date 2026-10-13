@@ -52,6 +52,11 @@ func _ready() -> void:
 	# Walls must be in the physics world before the grid can be baked from them.
 	await get_tree().physics_frame
 	nav.bake_from_physics(get_world_3d(), 2, 1.2)
+	# Sight gets its own grid, baked tight to the walls: the path grid is
+	# fattened by a unit's width, which would make every shadow that much wider.
+	var sight := RTSNavGrid.new(WORLD, 2.0)
+	sight.bake_from_physics(get_world_3d(), 2, 0.4)
+	fog.sight_blockers = sight
 
 	for i in 8:
 		_spawn(0, "rifle" if i < 6 else "heavy", Vector3(-70 + (i % 4) * 3.0, 0, 70 - (i / 4) * 3.0))
