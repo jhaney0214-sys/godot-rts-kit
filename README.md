@@ -1,5 +1,7 @@
 # RTS Kit for Godot 4
 
+[![numbers checked by docclaims](https://github.com/jhaney0214-sys/godot-rts-kit/actions/workflows/docclaims.yml/badge.svg)](https://github.com/jhaney0214-sys/docclaims)
+
 The parts every real-time strategy game has to rebuild, as a drop-in addon:
 **box selection and orders, an RTS camera, fog of war, a minimap, and grid
 pathfinding.** Pure GDScript, no dependencies, MIT licensed.
@@ -24,12 +26,15 @@ cut loose from it.
 
 ## How many units?
 
-[`benchmark/`](benchmark/) measures frame time against unit count, 100 to
-8,000, for four ways of moving units in Godot 4: NavigationAgent3D with and
-without avoidance, one path shared by a squad, and a flow field drawn with a
-MultiMesh. On the machine it was run on, agents with avoidance fit about 4,000
-units in a 60 fps frame, agents without it only just fit 8,000, and a shared
-path or a flow field moves 8,000 in about a third of the frame.
+[BENCHMARK.md](BENCHMARK.md) gives the most moving units Godot 4 held at a
+steady 60 and 30 fps for four ways of moving them: a NavigationAgent3D per
+unit with and without avoidance, one path shared by a squad, and a flow field
+drawn with a MultiMesh. On one machine (an i7-12700F), at 30 fps, it measured
+about 8,000 agents with avoidance, 14,000 without, 24,000 in squads and
+48,000 in a flow field. At 60 fps the flow field held 20,000, while the
+setups with a node per unit varied by as much as 3.6 times between runs. The
+caveats are in the file. The code is in [`benchmark/`](benchmark/), and it
+writes a CSV you can compare with yours.
 
 ## Install
 

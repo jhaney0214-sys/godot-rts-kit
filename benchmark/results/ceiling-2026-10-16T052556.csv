@@ -1,0 +1,43 @@
+# 12th Gen Intel(R) Core(TM) i7-12700F, 20 threads, 16 GB RAM | NVIDIA GeForce RTX 3060 Ti | vulkan 1.3.280, forward_plus | Godot 4.7.1-stable (official) | Windows 10.0.26200 | window (1280, 720)
+# 2026-10-16, ceiling search: 5 s measured per size after 3 s of warm-up, vsync off; holds = p95 one-step frame under 1000/fps ms, catch-up frames at most 1% of steps, and at least 98% of fps steps a second
+fps,setup,units,ticks,tick_frame_ms,tick_frame_p95_ms,draw_ms,step_ms,catchup_frames,catchup_ms,ticks_per_s,holds
+60,agent_avoid,500,300,1.92,2.85,0.44,1.49,0,nan,60.0,yes
+60,agent_avoid,1000,300,4.00,5.93,0.69,3.31,0,nan,60.0,yes
+60,agent_avoid,2000,286,8.97,18.39,0.97,8.00,7,28.36,60.0,no
+60,agent_avoid,1500,300,7.59,18.18,0.75,6.84,0,nan,60.0,no
+60,agent_avoid,1250,300,3.75,4.36,0.58,3.16,0,nan,60.0,yes
+60,agent_avoid,1400,300,5.72,10.97,0.82,4.90,0,nan,60.0,yes
+60,agent_avoid,1450,297,6.22,11.79,0.86,5.36,1,30.81,59.8,yes
+60,agent_plain,500,300,2.25,3.89,0.55,1.70,0,nan,60.0,yes
+60,agent_plain,1000,300,2.42,3.10,0.54,1.88,0,nan,60.0,yes
+60,agent_plain,2000,299,4.34,6.08,0.80,3.54,0,nan,59.8,yes
+60,agent_plain,4000,226,8.87,17.68,0.95,7.93,26,46.09,59.9,no
+60,agent_plain,3000,300,5.44,6.41,0.82,4.61,0,nan,59.9,yes
+60,agent_plain,3500,300,6.64,8.62,0.90,5.73,0,nan,59.9,yes
+60,agent_plain,3750,289,8.00,10.98,1.00,7.00,5,25.76,59.8,no
+60,agent_plain,3650,300,6.70,7.91,0.85,5.85,0,nan,60.0,yes
+60,shared_path,500,300,1.15,2.25,0.59,0.56,0,nan,60.0,yes
+60,shared_path,1000,300,1.25,1.69,0.59,0.66,0,nan,60.0,yes
+60,shared_path,2000,300,1.81,2.08,0.63,1.18,0,nan,60.0,yes
+60,shared_path,4000,300,3.39,4.46,0.88,2.51,0,nan,60.0,yes
+60,shared_path,8000,300,7.83,14.82,1.64,6.20,0,nan,60.0,yes
+60,shared_path,16000,155,17.75,22.86,11.90,5.85,72,31.19,60.1,no
+60,shared_path,12000,277,10.56,17.94,3.31,7.25,11,32.27,60.3,no
+60,shared_path,10000,300,9.07,14.93,2.51,6.56,0,nan,60.0,yes
+60,shared_path,11000,300,9.55,15.32,2.87,6.69,0,nan,59.9,yes
+60,shared_path,11500,300,10.93,16.45,3.60,7.33,0,nan,59.9,yes
+60,flow_multimesh,500,300,0.81,0.89,0.49,0.32,0,nan,60.0,yes
+60,flow_multimesh,1000,300,1.16,1.26,0.51,0.65,0,nan,60.0,yes
+60,flow_multimesh,2000,300,1.96,2.32,0.58,1.38,0,nan,60.0,yes
+60,flow_multimesh,4000,300,3.33,3.48,0.68,2.66,0,nan,60.0,yes
+60,flow_multimesh,8000,300,6.05,6.29,0.94,5.10,0,nan,59.9,yes
+60,flow_multimesh,16000,300,11.48,11.87,1.30,10.17,0,nan,59.9,yes
+60,flow_multimesh,32000,0,nan,nan,nan,nan,31,162.12,48.6,no
+60,flow_multimesh,24000,267,16.61,19.85,0.72,15.89,17,32.50,60.1,no
+60,flow_multimesh,20000,300,14.66,15.61,1.23,13.43,0,nan,59.9,yes
+60,flow_multimesh,22000,300,16.09,18.26,0.78,15.32,0,nan,59.8,no
+60,flow_multimesh,21000,300,15.62,16.78,0.96,14.66,0,nan,59.8,no
+# ceiling,60 fps,agent_avoid,holds 1450,fails at 1500
+# ceiling,60 fps,agent_plain,holds 3650,fails at 3750
+# ceiling,60 fps,shared_path,holds 11500,fails at 12000
+# ceiling,60 fps,flow_multimesh,holds 20000,fails at 21000

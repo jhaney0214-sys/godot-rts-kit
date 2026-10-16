@@ -1,0 +1,418 @@
+{
+ "_": "The numbers README.md and BENCHMARK.md state, checked by docclaims (github.com/jhaney0214-sys/docclaims) in CI.",
+ "exempt": {
+  "benchmark/README.md": "the 2026-10-09 frame-time sweep; its counts (100 to 8,000 units) are the sizes it ran, not ceilings this ledger pins"
+ },
+ "claims": [
+  {
+   "id": "test_checks",
+   "claim": "Checks the test suite runs",
+   "value": "34 checks",
+   "format": "%d checks",
+   "derive": {
+    "files": [
+     "tests/run_tests.gd"
+    ],
+    "capture": "^const EXPECTED_CHECKS := (\\d+)"
+   },
+   "status": "measured",
+   "anchor": "EXPECTED_CHECKS in tests/run_tests.gd, which the suite fails without reaching",
+   "checked_on": "2026-10-16",
+   "durable": "read from source on every verify",
+   "appears_in": [
+    "README.md"
+   ],
+   "near": [
+    "run_tests.gd"
+   ],
+   "window": 80
+  },
+  {
+   "id": "ceiling_60_agent_avoid_run1",
+   "claim": "Most units agent_avoid held at 60 fps in run 1",
+   "value": "2,650",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_avoid,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_agent_plain_run1",
+   "claim": "Most units agent_plain held at 60 fps in run 1",
+   "value": "1,950",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_plain,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_shared_path_run1",
+   "claim": "Most units shared_path held at 60 fps in run 1",
+   "value": "4,150",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,60 fps,shared_path,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_flow_multimesh_run1",
+   "claim": "Most units flow_multimesh held at 60 fps in run 1",
+   "value": "20,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,60 fps,flow_multimesh,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_agent_avoid_run1",
+   "claim": "Most units agent_avoid held at 30 fps in run 1",
+   "value": "8,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,30 fps,agent_avoid,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_agent_plain_run1",
+   "claim": "Most units agent_plain held at 30 fps in run 1",
+   "value": "13,500",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,30 fps,agent_plain,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_shared_path_run1",
+   "claim": "Most units shared_path held at 30 fps in run 1",
+   "value": "25,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,30 fps,shared_path,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_flow_multimesh_run1",
+   "claim": "Most units flow_multimesh held at 30 fps in run 1",
+   "value": "48,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T182141.csv"
+    ],
+    "capture": "^# ceiling,30 fps,flow_multimesh,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T182141.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_agent_avoid_run2",
+   "claim": "Most units agent_avoid held at 60 fps in run 2",
+   "value": "4,750",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_avoid,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_agent_plain_run2",
+   "claim": "Most units agent_plain held at 60 fps in run 2",
+   "value": "7,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_plain,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_shared_path_run2",
+   "claim": "Most units shared_path held at 60 fps in run 2",
+   "value": "11,500",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,60 fps,shared_path,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_flow_multimesh_run2",
+   "claim": "Most units flow_multimesh held at 60 fps in run 2",
+   "value": "23,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,60 fps,flow_multimesh,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_agent_avoid_run2",
+   "claim": "Most units agent_avoid held at 30 fps in run 2",
+   "value": "8,500",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,30 fps,agent_avoid,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_agent_plain_run2",
+   "claim": "Most units agent_plain held at 30 fps in run 2",
+   "value": "14,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,30 fps,agent_plain,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_shared_path_run2",
+   "claim": "Most units shared_path held at 30 fps in run 2",
+   "value": "24,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,30 fps,shared_path,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_30_flow_multimesh_run2",
+   "claim": "Most units flow_multimesh held at 30 fps in run 2",
+   "value": "48,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-15T183322.csv"
+    ],
+    "capture": "^# ceiling,30 fps,flow_multimesh,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-15T183322.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_agent_avoid_run3",
+   "claim": "Most units agent_avoid held at 60 fps in run 3",
+   "value": "1,450",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-16T052556.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_avoid,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-16T052556.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_agent_plain_run3",
+   "claim": "Most units agent_plain held at 60 fps in run 3",
+   "value": "3,650",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-16T052556.csv"
+    ],
+    "capture": "^# ceiling,60 fps,agent_plain,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-16T052556.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_shared_path_run3",
+   "claim": "Most units shared_path held at 60 fps in run 3",
+   "value": "11,500",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-16T052556.csv"
+    ],
+    "capture": "^# ceiling,60 fps,shared_path,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-16T052556.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md"
+   ]
+  },
+  {
+   "id": "ceiling_60_flow_multimesh_run3",
+   "claim": "Most units flow_multimesh held at 60 fps in run 3",
+   "value": "20,000",
+   "format": "{:,}",
+   "derive": {
+    "files": [
+     "benchmark/results/ceiling-2026-10-16T052556.csv"
+    ],
+    "capture": "^# ceiling,60 fps,flow_multimesh,holds (\\d+),"
+   },
+   "status": "measured",
+   "anchor": "benchmark/results/ceiling-2026-10-16T052556.csv, summary line written by benchmark/bench.gd mode=ceiling",
+   "checked_on": "2026-10-16",
+   "durable": "read from the committed results file on every verify",
+   "appears_in": [
+    "BENCHMARK.md",
+    "README.md"
+   ]
+  }
+ ]
+}

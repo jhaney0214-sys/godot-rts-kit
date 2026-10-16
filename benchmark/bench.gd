@@ -17,6 +17,17 @@ extends SceneTree
 ## includes one tick: `tick_frame_ms`. A frame with no tick is `draw_ms`, and
 ## the difference is what one simulation step of the units costs. Results go
 ## to the console and to benchmark/results/<date>.csv.
+##
+## `mode=ceiling` answers the other question: the most units each setup holds
+## at 60 fps and at 30 fps. For a target of F fps the simulation runs at F
+## steps a second (a 30 fps game steps 30 times a second), and a size "holds"
+## when the 95th-percentile frame that ran one step is under 1000/F ms, at
+## most 1% of steps fell in catch-up frames, and the simulation kept at least
+## 98% of its F steps a second (see _holds). It doubles the count from
+## `start` until a size fails, then halves the gap until it is within 5%, and
+## writes every size it tried to benchmark/results/ceiling-<date>T<time>.csv:
+##     godot --path . -s res://benchmark/bench.gd -- mode=ceiling
+##     godot --path . -s res://benchmark/bench.gd -- mode=ceiling fps=60 setups=flow_multimesh
 
 const AgentUnit := preload("res://benchmark/agent_unit.gd")
 const SharedPath := preload("res://benchmark/shared_path.gd")
@@ -24,7 +35,8 @@ const FlowField := preload("res://benchmark/flow_field.gd")
 
 const HALF := 100.0
 const SPEED := 5.0
-const WARMUP_TICKS := 180
+const WARMUP_SECONDS := 3
+const HOLD_RATE := 0.98
 const SETUPS := ["agent_avoid", "agent_plain", "shared_path", "flow_multimesh"]
 const WALLS := [
 	Rect2(-70, -70, 30, 6), Rect2(40, -70, 30, 6), Rect2(-70, 64, 30, 6), Rect2(40, 64, 30, 6),
@@ -35,6 +47,11 @@ var sizes: Array[int] = [100, 250, 500, 1000, 2000]
 var setups: Array = SETUPS.duplicate()
 var seconds := 5.0
 var shots := false
+var mode := "sweep"
+var targets: Array[int] = [60, 30]
+var start_size := 500
+var max_size := 64000
+var _rate := 60
 var _navmesh: NavigationMesh
 var _unit_mesh: Mesh
 
@@ -54,6 +71,16 @@ func _initialize() -> void:
 				seconds = float(kv[1])
 			"shots":
 				shots = kv[1] == "1"
+			"mode":
+				mode = kv[1]
+			"fps":
+				targets.clear()
+				for s in kv[1].split(","):
+					targets.append(int(s))
+			"start":
+				start_size = int(kv[1])
+			"max":
+				max_size = int(kv[1])
 	_run.call_deferred()
 
 func _run() -> void:
@@ -66,25 +93,101 @@ func _run() -> void:
 	capsule.rings = 2
 	_unit_mesh = capsule
 
-	var machine := "%s | %s | Godot %s | %s" % [OS.get_processor_name(),
-		RenderingServer.get_video_adapter_name(), Engine.get_version_info().string, OS.get_name()]
+	var machine := "%s, %d threads, %d GB RAM | %s | %s %s, %s | Godot %s | %s %s | window %s" % [
+		OS.get_processor_name(), OS.get_processor_count(),
+		roundi(OS.get_memory_info()["physical"] / 1073741824.0), RenderingServer.get_video_adapter_name(),
+		RenderingServer.get_current_rendering_driver_name(), RenderingServer.get_video_adapter_api_version(),
+		RenderingServer.get_current_rendering_method(), Engine.get_version_info().string,
+		OS.get_name(), OS.get_version(), DisplayServer.window_get_size()]
+	if mode == "ceiling":
+		await _ceiling(machine)
+		return
 	var lines := PackedStringArray(["# " + machine,
 		"# %s, %d s measured per run after %d warm-up ticks (60 a second), vsync off" % [
-			Time.get_date_string_from_system(), int(seconds), WARMUP_TICKS],
+			Time.get_date_string_from_system(), int(seconds), WARMUP_SECONDS * 60],
 		"setup,units,ticks,tick_frame_ms,tick_frame_p95_ms,draw_ms,step_ms,catchup_frames,catchup_ms,ticks_per_s"])
 	print(lines[0])
 	print(lines[2])
 	for setup in setups:
 		for n in sizes:
-			var line := await _measure(setup, n)
+			var line := _row(await _measure(setup, n))
 			print(line)
 			lines.append(line)
+	_write("%s.csv" % Time.get_date_string_from_system(), lines)
+	quit(0)
+
+## The most units each setup holds at each target frame rate, found by
+## doubling and then bisecting. Every size tried is a row of the CSV; the
+## summary lines at the end (`# ceiling,...`) are what BENCHMARK.md quotes.
+func _ceiling(machine: String) -> void:
+	var lines := PackedStringArray(["# " + machine,
+		"# %s, ceiling search: %d s measured per size after %d s of warm-up, vsync off; holds = p95 one-step frame under 1000/fps ms, catch-up frames at most 1%% of steps, and at least %d%% of fps steps a second" % [
+			Time.get_date_string_from_system(), int(seconds), WARMUP_SECONDS, int(HOLD_RATE * 100)],
+		"fps,setup,units,ticks,tick_frame_ms,tick_frame_p95_ms,draw_ms,step_ms,catchup_frames,catchup_ms,ticks_per_s,holds"])
+	print(lines[0])
+	print(lines[2])
+	var summary := PackedStringArray()
+	for fps in targets:
+		_rate = fps
+		Engine.physics_ticks_per_second = fps
+		var budget := 1000.0 / fps
+		for setup in setups:
+			var held := 0
+			var failed := 0
+			var n := start_size
+			# Double until a size fails (or the cap is passed)...
+			while n <= max_size:
+				var r := await _measure(setup, n)
+				var ok := _holds(r, budget, fps)
+				var line := "%d,%s,%s" % [fps, _row(r), "yes" if ok else "no"]
+				print(line)
+				lines.append(line)
+				if not ok:
+					failed = n
+					break
+				held = n
+				n *= 2
+			# ...then halve the gap until it is within 5%.
+			while failed > 0 and failed - held > maxi(int(held * 0.05), 50):
+				n = int(round((held + failed) / 100.0)) * 50
+				if n <= held or n >= failed:
+					break
+				var r := await _measure(setup, n)
+				var ok := _holds(r, budget, fps)
+				var line := "%d,%s,%s" % [fps, _row(r), "yes" if ok else "no"]
+				print(line)
+				lines.append(line)
+				if ok:
+					held = n
+				else:
+					failed = n
+			var s := "# ceiling,%d fps,%s,holds %d,fails at %s" % [fps, setup, held,
+				str(failed) if failed > 0 else "none tried up to %d" % max_size]
+			print(s)
+			summary.append(s)
+	lines.append_array(summary)
+	# Date and time, so a second search the same day does not overwrite the first.
+	_write("ceiling-%s.csv" % Time.get_datetime_string_from_system().replace(":", ""), lines)
+	quit(0)
+
+## Holding a frame rate means the bad frames fit too, not only the average:
+## the 95th-percentile one-step frame is inside the budget, no more than 1% of
+## steps came in catch-up frames (a hitch the player sees), and the simulation
+## kept 98% of its steps.
+func _holds(r: Dictionary, budget: float, fps: int) -> bool:
+	return (r.ticks > 0 and r.p95 <= budget and r.catchup <= r.steps * 0.01
+		and r.ticks_per_s >= fps * HOLD_RATE)
+
+func _write(file_name: String, lines: PackedStringArray) -> void:
 	var dir := "res://benchmark/results"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
-	var f := FileAccess.open("%s/%s.csv" % [dir, Time.get_date_string_from_system()], FileAccess.WRITE)
+	var f := FileAccess.open("%s/%s" % [dir, file_name], FileAccess.WRITE)
 	f.store_string("\n".join(lines) + "\n")
 	f.close()
-	quit(0)
+
+func _row(r: Dictionary) -> String:
+	return "%s,%d,%d,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.1f" % [r.setup, r.units, r.ticks, r.tick_ms,
+		r.p95, r.draw_ms, r.tick_ms - r.draw_ms, r.catchup, r.catchup_ms, r.ticks_per_s]
 
 func _arena() -> Node3D:
 	var arena := Node3D.new()
@@ -123,7 +226,7 @@ func _arena() -> Node3D:
 	region.navigation_mesh = _navmesh
 	return arena
 
-func _measure(setup: String, n: int) -> String:
+func _measure(setup: String, n: int) -> Dictionary:
 	var arena := _arena()
 	# A region set this frame is not on the map until the next sync, and until
 	# then every closest-point query answers the origin.
@@ -154,7 +257,7 @@ func _measure(setup: String, n: int) -> String:
 			push_error("unknown setup %s" % setup)
 	# Warm up in simulation time, not frames: at thousands of frames a second a
 	# frame count would end before the units had moved.
-	for i in WARMUP_TICKS:
+	for i in WARMUP_SECONDS * _rate:
 		await physics_frame
 	if shots:
 		# Two pictures a second apart, to check by eye that units really move.
@@ -201,9 +304,12 @@ func _measure(setup: String, n: int) -> String:
 	var sorted := Array(with_tick)
 	sorted.sort()
 	var p95: float = sorted[mini(sorted.size() - 1, int(sorted.size() * 0.95))] if sorted.size() else NAN
-	var elapsed := (Time.get_ticks_usec() - start) / 1e6
-	return "%s,%d,%d,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.1f" % [setup, n, with_tick.size(), tick_mean, p95,
-		draw_mean, tick_mean - draw_mean, catchup.size(), _mean(catchup), total_ticks / elapsed]
+	# Measured to the last frame counted, not to here: freeing the arena and
+	# the two frames after it are not part of the run.
+	var elapsed := (last - start) / 1e6
+	return {"setup": setup, "units": n, "ticks": with_tick.size(), "tick_ms": tick_mean, "p95": p95,
+		"draw_ms": draw_mean, "catchup": catchup.size(), "catchup_ms": _mean(catchup),
+		"ticks_per_s": total_ticks / elapsed, "steps": total_ticks}
 
 func _mean(values: PackedFloat64Array) -> float:
 	if values.is_empty():

@@ -98,8 +98,15 @@ godot --path . -s res://benchmark/bench.gd -- sizes=100,1000 setups=flow_multime
 python benchmark/chart.py benchmark/results/<date>.csv
 ```
 
-Results go to `benchmark/results/<date>.csv`, with your CPU, GPU and Godot
-version on the first line. `shots=1` also saves two screenshots a second apart
+Results go to `benchmark/results/<date>.csv`, with your CPU, GPU, renderer and
+Godot version on the first line.
+
+`mode=ceiling` searches instead for the most units each setup holds at 60 and
+30 fps; its results, and what "holds" means there, are in
+[BENCHMARK.md](../BENCHMARK.md). Since 2026-10-15, `ticks_per_s` is measured
+up to the last frame counted rather than including the teardown after it, so
+the 2026-10-09 file reads slightly low in that column (it gave 59.2 where the
+run kept its 60 steps). `shots=1` also saves two screenshots a second apart
 for each run, to check by eye that the units really move. If you run it,
 please post your numbers: other hardware is the thing this is missing.
 

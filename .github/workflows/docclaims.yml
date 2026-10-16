@@ -1,0 +1,23 @@
+# Checks every number the README and BENCHMARK.md state against claims.json,
+# which reads each one from the test suite or from a committed benchmark CSV.
+# Its status is the README's "numbers checked" badge. Nothing here builds or
+# runs Godot: it is text against text.
+name: docclaims
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jhaney0214-sys/docclaims@v0.4.0
+        with:
+          path: .
+          scan: "*.md benchmark/*.md"
