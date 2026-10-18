@@ -86,17 +86,56 @@ func bake_from_physics(world: World3D, collision_mask: int, clearance: float = 1
 
 ## Can a unit walk the straight line from [param a] to [param b]? The cells the
 ## ends stand in are not checked, so a unit brushing a wall can still leave it.
+##
+## Every cell the line passes through is checked, by walking the grid cell to
+## cell. Where the line crosses exactly through a corner it counts as blocked if
+## either cell beside the corner is solid, the same rule the path finder uses
+## for a diagonal step, so a route cannot slip between two walls that only
+## touch at a corner. (Sampling the line every half cell, as this did before
+## 2026-10-18, missed exactly that crossing.)
 func walkable(a: Vector3, b: Vector3) -> bool:
 	var ca := cell_of(a)
 	var cb := cell_of(b)
-	var flat := Vector2(b.x - a.x, b.z - a.z)
-	var steps: int = ceili(flat.length() / (cell_size * 0.5))
-	for i in range(1, steps):
-		var p := a.lerp(b, float(i) / float(steps))
-		var c := cell_of(p)
-		if c != ca and c != cb and _astar.is_point_solid(c):
+	var gx := (a.x - world_rect.position.x) / cell_size
+	var gy := (a.z - world_rect.position.y) / cell_size
+	var dx := (b.x - a.x) / cell_size
+	var dy := (b.z - a.z) / cell_size
+	var cell := ca
+	var step := Vector2i(int(signf(dx)), int(signf(dy)))
+	var t_delta_x := INF if is_zero_approx(dx) else absf(1.0 / dx)
+	var t_delta_y := INF if is_zero_approx(dy) else absf(1.0 / dy)
+	var t_max_x := INF
+	var t_max_y := INF
+	if step.x != 0:
+		t_max_x = ((floorf(gx) + (1.0 if step.x > 0 else 0.0)) - gx) / dx
+	if step.y != 0:
+		t_max_y = ((floorf(gy) + (1.0 if step.y > 0 else 0.0)) - gy) / dy
+	var guard := size.x + size.y + 2
+	while cell != cb and guard > 0:
+		guard -= 1
+		if minf(t_max_x, t_max_y) > 1.0:
+			break
+		if is_equal_approx(t_max_x, t_max_y):
+			# Through a corner: the two cells beside it, then the diagonal one.
+			if _solid_between(cell + Vector2i(step.x, 0), ca, cb) \
+					or _solid_between(cell + Vector2i(0, step.y), ca, cb):
+				return false
+			cell += step
+			t_max_x += t_delta_x
+			t_max_y += t_delta_y
+		elif t_max_x < t_max_y:
+			cell.x += step.x
+			t_max_x += t_delta_x
+		else:
+			cell.y += step.y
+			t_max_y += t_delta_y
+		if _solid_between(cell, ca, cb):
 			return false
 	return true
+
+## A cell on the line that blocks it: on the grid, solid, and not an end cell.
+func _solid_between(c: Vector2i, ca: Vector2i, cb: Vector2i) -> bool:
+	return c != ca and c != cb and _astar.region.has_point(c) and _astar.is_point_solid(c)
 
 ## Waypoints from [param from] to [param to], not including [param from]. Ends
 ## at [param to] when it can be reached, otherwise at the nearest point that

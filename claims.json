@@ -7,7 +7,7 @@
   {
    "id": "test_checks",
    "claim": "Checks the test suite runs",
-   "value": "34 checks",
+   "value": "37 checks",
    "format": "%d checks",
    "derive": {
     "files": [

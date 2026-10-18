@@ -8,7 +8,7 @@ extends SceneTree
 ## quietly ending a test early: GDScript aborts the function without failing
 ## anything, so the count is what notices.
 
-const EXPECTED_CHECKS := 34
+const EXPECTED_CHECKS := 37
 
 var _checks: int = 0
 var _failures: int = 0
@@ -47,6 +47,7 @@ func _run() -> void:
 	_test_formation()
 	_test_nav_routes_around_a_wall()
 	_test_nav_unreachable()
+	_test_nav_diagonal_gap()
 	await _test_nav_bake()
 	await _test_fog()
 	await _test_selection()
@@ -114,6 +115,21 @@ func _test_nav_unreachable() -> void:
 	check(path.size() > 0 and path[path.size() - 1] != to, "an enclosed goal ends at the nearest reachable point")
 	var into_wall := grid.route(Vector3(-20, 0, -20), Vector3(11, 0, 20))
 	check(into_wall.size() > 0 and not grid.is_blocked(into_wall[into_wall.size() - 1]), "a goal inside a wall ends on open ground")
+
+func _test_nav_diagonal_gap() -> void:
+	# A staircase wall: cells (i, 9 - i) touch only at their corners. The path
+	# finder will not step diagonally between two of them, and a straight line
+	# from cell (0, 0) to cell (9, 9) crosses the wall exactly at a corner.
+	var grid := RTSNavGrid.new(Rect2(-10, -10, 20, 20), 2.0)
+	for i in 10:
+		grid.set_cell_solid(Vector2i(i, 9 - i))
+	var from := grid.centre_of(Vector2i(0, 0))
+	var to := grid.centre_of(Vector2i(9, 9))
+	check(not grid.walkable(from, to), "a line through the corner between two wall cells is not walkable")
+	var path := grid.route(from, to)
+	check(path.size() > 0 and path[path.size() - 1] != to, "a diagonal wall cannot be slipped through at a corner")
+	check(grid.walkable(grid.centre_of(Vector2i(0, 0)), grid.centre_of(Vector2i(8, 0))),
+		"a line along open cells is still walkable")
 
 func _test_nav_bake() -> void:
 	_clear()

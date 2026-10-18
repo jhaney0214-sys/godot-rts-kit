@@ -126,7 +126,7 @@ func _ready() -> void:
 
 ```bash
 godot --headless --path . --import                    # once, on a fresh checkout
-godot --headless --path . -s tests/run_tests.gd       # 34 checks
+godot --headless --path . -s tests/run_tests.gd       # 37 checks
 godot --headless --path . -s tools/arrival_check.gd   # units reach their orders
 godot --path . -s tools/screenshot.gd                 # windowed: redraws docs/screenshot.png
 godot --path . --fixed-fps 60 -s tools/record_gif.gd  # windowed: frames for the GIF, then
